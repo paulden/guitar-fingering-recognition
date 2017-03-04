@@ -38,3 +38,6 @@ class Image:
     def edges_sobely(self, ksize=3):
         return cv2.Sobel(self.gray, cv2.CV_8U, 0, 1, ksize)
 
+    def lines_hough_transform(self, edges, min_line_length, max_line_gap, threshold=15):
+        lines = cv2.HoughLinesP(edges, 1, np.pi / 180, threshold, min_line_length, max_line_gap)
+        return lines

@@ -3,4 +3,3 @@ def threshold(img, s):
     I[I <= s] = 0
     I[I > s] = 255
     return I
-
