@@ -11,6 +11,12 @@ class Image:
     def __str__(self):
         return self.image
 
+    def set_image(self, img):
+        self.image = img
+
+    def set_gray(self, grayscale):
+        self.gray = grayscale
+
     def print_cv2(self, is_gray=True):
         if is_gray:
             cv2.imshow('image', self.gray)
