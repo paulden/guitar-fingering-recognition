@@ -1,5 +1,6 @@
 import cv2
 
+
 def threshold(img, s):
     I = img
     I[I <= s] = 0
