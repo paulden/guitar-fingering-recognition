@@ -4,8 +4,13 @@ import cv2
 
 
 class Image:
-    def __init__(self, path):
-        self.image = cv2.imread(path)
+    def __init__(self, path=None, img=None):
+        if img is None:
+            self.image = cv2.imread(path)
+        elif path is None:
+            self.image = img
+        else:
+            print("Formation d'image incorrecte")
         self.gray = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
 
     def __str__(self):
