@@ -79,7 +79,7 @@ def crop_neck_picture(image):
 
 
 if __name__ == "__main__":
-    chord_image = Image(path="./pictures/chordBm.jpg")
+    chord_image = Image(path="./pictures/chordG.jpg")
     rotated_image = rotate_neck_picture(chord_image)
     for i in range(10):
         rotated_image = rotate_neck_picture(rotated_image)
