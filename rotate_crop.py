@@ -25,8 +25,8 @@ def rotate_neck_picture(image):
     size = len(lines)
     slopes = []
 
-    for x in range(size):
-        for x1, y1, x2, y2 in lines[x]:
+    for line in lines:
+        for x1, y1, x2, y2 in line:
             slopes.append(abs((y2 - y1) / (x2 - x1)))
 
     mean_slope = mean(slopes)
@@ -55,8 +55,8 @@ def crop_neck_picture(image):
     size = len(lines)
     y = []
 
-    for x in range(size):
-        for x1, y1, x2, y2 in lines[x]:
+    for line in lines:
+        for x1, y1, x2, y2 in line:
             # cv2.line(image_to_crop, (x1, y1), (x2, y2), (0, 255, 0), 2)
             y.append(y1)
             y.append(y2)
@@ -79,7 +79,9 @@ def crop_neck_picture(image):
 
 
 if __name__ == "__main__":
-    chord_image = Image(path="./pictures/chordG.jpg")
+    chord_image = Image(path="./pictures/chordBm.jpg")
     rotated_image = rotate_neck_picture(chord_image)
+    for i in range(10):
+        rotated_image = rotate_neck_picture(rotated_image)
     cropped_image = crop_neck_picture(rotated_image)
     cropped_image.print_plt()
