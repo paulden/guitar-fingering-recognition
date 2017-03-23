@@ -88,6 +88,10 @@ def string_detection(neck):
                 pass
 
     # 3. Use fitLine function to form lines separating each string
+
+    tuning = ["E", "A", "D", "G", "B", "E6"]
+    strings = Strings(tuning)
+
     for i in range(5):
         cnt = np.array(points_divided[i])
         [vx, vy, x, y] = cv2.fitLine(cnt, cv2.DIST_L12, 0, 0.01, 0.01)  # best distType found was DIST_L12
@@ -95,10 +99,11 @@ def string_detection(neck):
         left_extreme = int((-x * vy / vx) + y)
         right_extreme = int(((width - x) * vy / vx) + y)
 
+        strings.separating_lines[tuning[i]] = [(width - 1, right_extreme), (0, left_extreme)]
+
         cv2.line(neck.image, (width - 1, right_extreme), (0, left_extreme), 255, 2)
 
-    return Image(img=neck.image)
-    # return strings
+    return strings, Image(img=neck.image)
 
 
 def fret_detection(neck):
@@ -176,16 +181,17 @@ def fret_detection(neck):
             potential_frets.append(int(last_x))
 
     for x in potential_frets:
-        cv2.line(neck.image, (x, 0), (x, height), (255, 0, 0), 3)
+        cv2.line(neck.image, (x, 0), (x, height), (255, 0, 127), 3)
 
     return Image(img=neck.image)
 
 
 if __name__ == "__main__":
-    chord_image = Image(path="./pictures/chordAm.png")
+    chord_image = Image(path="./pictures/chordBm.jpg")
     rotated_image = rotate_neck_picture(chord_image)
     cropped_image = crop_neck_picture(rotated_image)
-    neck_string = string_detection(cropped_image)
+    neck_string = string_detection(cropped_image)[0]
+    print(neck_string)
     # neck_string.print_plt(is_gray=False)
-    neck_fret = fret_detection(neck_string)
-    neck_fret.print_plt(is_gray=False)
+    # neck_fret = fret_detection(neck_string)
+    # neck_fret.print_plt(is_gray=False)
