@@ -8,6 +8,7 @@ from math import log
 from matplotlib import pyplot as plt
 import cv2
 import numpy as np
+from collections import defaultdict
 
 
 def string_detection(neck):
@@ -146,20 +147,23 @@ def fret_detection(neck):
                 n += 1
         slices_differences[k] = temp
 
-    points = []
-    points_dict = {}
+    x_values = defaultdict(int)
     for j in slices_differences.keys():
-        gaps = [log(g, 1/0.94387) for g in slices_differences[j] if g > 1]
-        points_dict[j] = []
+        for index, gap in enumerate(slices_differences[j]):
+            if gap > 1:
+                x_values[slices[j][index]] += 1
 
-        if len(gaps) > 3:
-            for index, diff in enumerate(slices_differences[j]):
-                points_dict[j].append((slices[j][index], j))
+    potential_frets = []
+    x_values = dict(x_values)
+    for x, nb in x_values.items():
+        if nb > 1:
+            potential_frets.append(x)
 
-        points.extend(points_dict[j])
+    potential_frets = list(sorted(potential_frets))
+    potential_frets = purify(potential_frets)
 
-    for p in points:
-        cv2.circle(neck.image, p, 3, (255, 0, 0), -1)
+    for x in potential_frets:
+        cv2.line(neck.image, (x, 0), (x, height), (255, 0, 0), 3)
 
     return Image(img=neck.image)
 
@@ -171,4 +175,4 @@ if __name__ == "__main__":
     # neck_string = string_detection(cropped_image)
     # neck_string.print_plt(is_gray=False)
     neck_fret = fret_detection(cropped_image)
-    # neck_fret.print_plt(is_gray=False)
+    neck_fret.print_plt(is_gray=False)

@@ -19,3 +19,14 @@ def rotate(image, angle, center = None, scale = 1.0):
     rotated = cv2.warpAffine(image, M, (w, h))
 
     return rotated
+
+
+def purify(l):
+    gaps = []
+    new_l = []
+    for i in range(len(l)-1):
+        gaps.append(l[i+1]-l[i])
+    for index, g in enumerate(gaps):
+        if g > 5:
+            new_l.append(l[index])
+    return new_l
