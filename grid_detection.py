@@ -4,6 +4,7 @@ from functions import *
 from statistics import median, StatisticsError
 from random import random
 from rotate_crop import *
+from math import log
 from matplotlib import pyplot as plt
 import cv2
 import numpy as np
@@ -11,7 +12,7 @@ import numpy as np
 
 def string_detection(neck):
     """
-
+    TODO : Choose an appropriate format to return
     :param neck: An Image object of the picture cropped around the horizontal neck
     :return:
     """
@@ -107,8 +108,9 @@ def fret_detection(neck):
     """
     height = len(neck.image)
     width = len(neck.image[0])
-    neck_with_strings = np.zeros((height, width, 3), np.uint8)
+    neck_with_frets = np.zeros((height, width, 3), np.uint8)
 
+    # 1. Detect frets with Hough transform and form an Image based on these
     edges = neck.edges_sobelx()
     edges = threshold(edges, 127)
 
@@ -117,19 +119,56 @@ def fret_detection(neck):
 
     for x in range(size):
         for x1, y1, x2, y2 in lines[x]:
-            cv2.line(neck_with_strings, (x1, y1), (x2, y2), (255, 255, 255), 2)
+            cv2.line(neck_with_frets, (x1, y1), (x2, y2), (255, 255, 255), 2)
 
-    return Image(img=neck_with_strings)
+    neck_fr = Image(img=neck_with_frets)
+    neck_fret_gray = neck_fr.gray
+
+    # 2. Slice image horizontally at different points and calculate gaps between frets at these slices
+    slices = {}
+    nb_slices = int(height / 15)
+    for i in range(nb_slices):
+        slices[(i+1)*nb_slices] = []  # slices dict is {y_pixel_of_slice : [x_pixels_where_line_detected]}
+
+    for index_line, line in enumerate(neck_fret_gray):
+        for index_pixel, pixel in enumerate(line):
+            if pixel == 255 and index_line in slices:
+                slices[index_line].append(index_pixel)
+
+    slices_differences = {}  # slices_differences dict is {y_pixel_of_slice : [gaps_between_detected_lines]}
+    for k in slices.keys():
+        temp = []
+        n = 0
+        slices[k] = list(sorted(slices[k]))
+        for p in range(len(slices[k])-1):
+            temp.append(slices[k][p+1]-slices[k][p])
+            if slices[k][p+1]-slices[k][p] > 1:
+                n += 1
+        slices_differences[k] = temp
+
+    points = []
+    points_dict = {}
+    for j in slices_differences.keys():
+        gaps = [log(g, 1/0.94387) for g in slices_differences[j] if g > 1]
+        points_dict[j] = []
+
+        if len(gaps) > 3:
+            for index, diff in enumerate(slices_differences[j]):
+                points_dict[j].append((slices[j][index], j))
+
+        points.extend(points_dict[j])
+
+    for p in points:
+        cv2.circle(neck.image, p, 3, (255, 0, 0), -1)
+
+    return Image(img=neck.image)
 
 
 if __name__ == "__main__":
     chord_image = Image(path="./pictures/chordBm.jpg")
     rotated_image = rotate_neck_picture(chord_image)
     cropped_image = crop_neck_picture(rotated_image)
-    neck_string = string_detection(cropped_image)
-    # print(neck_string)
-    neck_string.print_plt(is_gray=False)
+    # neck_string = string_detection(cropped_image)
+    # neck_string.print_plt(is_gray=False)
     neck_fret = fret_detection(cropped_image)
-    # neck_grid = Image(img=(neck_string.image + neck_fret.image))
-    # neck_grid.print_plt(is_gray=False)
     # neck_fret.print_plt(is_gray=False)
