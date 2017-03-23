@@ -1,10 +1,7 @@
 from image import Image
 from functions import *
-from statistics import stdev, mean, median
+from statistics import median
 from math import inf
-from matplotlib import pyplot as plt
-import cv2
-import numpy as np
 
 
 def rotate_neck_picture(image):
@@ -22,17 +19,13 @@ def rotate_neck_picture(image):
     edges = threshold(edges, 127)
 
     lines = image.lines_hough_transform(edges, 50, 50)  # TODO: Calibrate params automatically
-    size = len(lines)
     slopes = []
 
     for line in lines:
         for x1, y1, x2, y2 in line:
             slopes.append(abs((y2 - y1) / (x2 - x1)))
 
-    mean_slope = mean(slopes)
     median_slope = median(slopes)
-    std_slope = stdev(slopes)
-
     angle = median_slope*45
 
     return Image(img=rotate(image_to_rotate, -angle))
@@ -52,12 +45,10 @@ def crop_neck_picture(image):
     edges = threshold(edges, 127)
 
     lines = image.lines_hough_transform(edges, 50, 50)  # TODO: Calibrate params automatically
-    size = len(lines)
     y = []
 
     for line in lines:
         for x1, y1, x2, y2 in line:
-            # cv2.line(image_to_crop, (x1, y1), (x2, y2), (0, 255, 0), 2)
             y.append(y1)
             y.append(y2)
 
@@ -75,13 +66,11 @@ def crop_neck_picture(image):
             if i != 0 and first_y == 0:
                 first_y = y_sort[i]
 
-    return Image(img=image_to_crop[first_y:last_y])
+    return Image(img=image_to_crop[first_y-10:last_y+10])
 
 
 if __name__ == "__main__":
-    chord_image = Image(path="./pictures/chordG.jpg")
+    chord_image = Image(path="./pictures/chordC.png")
     rotated_image = rotate_neck_picture(chord_image)
-    for i in range(10):
-        rotated_image = rotate_neck_picture(rotated_image)
     cropped_image = crop_neck_picture(rotated_image)
     cropped_image.print_plt()
