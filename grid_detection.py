@@ -1,4 +1,5 @@
 from image import Image
+from strings import Strings
 from functions import *
 from statistics import median, StatisticsError
 from random import random
@@ -21,7 +22,7 @@ def string_detection(neck):
     edges = neck.edges_sobely()
     edges = threshold(edges, 127)
 
-    lines = neck.lines_hough_transform(edges, 50, 20)  # TODO: Calibrate params automatically
+    lines = neck.lines_hough_transform(edges, 50, 50)  # TODO: Calibrate params automatically
     size = len(lines)
 
     for x in range(size):
@@ -71,15 +72,22 @@ def string_detection(neck):
         except StatisticsError:
             pass
 
+    strings = Strings(['E', 'a', 'd', 'g', 'b', 'e'])
+
     for i in range(5):  # TODO: Manage errors if we don't have 5 gaps
         a = (points[i+5][1]-points[i][1])/(points[i+5][0]-points[i][0])
         b = points[i][1] - a*points[i][0]
+        current_block = strings.tuning[i]
+        strings.blocks[current_block] = [(0, int(b)), (width-1, int(a*(width-1)+b))]
         red = random()*255
         blue = random() * 255
         green = random() * 255
-        cv2.line(neck_with_strings, (0, int(b)), (width-1, int(a*(width-1)+b)), (red, green, blue), 2)
+        cv2.line(neck.image, (0, int(b)), (width-1, int(a*(width-1)+b)), (red, green, blue), 2)
 
-    return Image(img=neck_with_strings)
+    strings.blocks[strings.tuning[5]] = [(0, height), (width, height)]
+
+    # return Image(img=neck.image)
+    return strings
 
 
 def fret_detection(neck):
@@ -112,6 +120,8 @@ if __name__ == "__main__":
         rotated_image = rotate_neck_picture(rotated_image)
     cropped_image = crop_neck_picture(rotated_image)
     neck_string = string_detection(cropped_image)
+    print(neck_string)
     neck_fret = fret_detection(cropped_image)
-    neck_grid = Image(img=(neck_string.image + neck_fret.image))
-    neck_grid.print_plt(is_gray=False)
+    # neck_grid = Image(img=(neck_string.image + neck_fret.image))
+    # neck_grid.print_plt(is_gray=False)
+    # neck_fret.print_plt(is_gray=False)
