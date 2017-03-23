@@ -1,4 +1,5 @@
 import cv2
+from statistics import median
 
 
 def threshold(img, s):
@@ -21,12 +22,12 @@ def rotate(image, angle, center = None, scale = 1.0):
     return rotated
 
 
-def purify(l):
+def remove_duplicates(l):
     gaps = []
     new_l = []
     for i in range(len(l)-1):
         gaps.append(l[i+1]-l[i])
     for index, g in enumerate(gaps):
-        if g > 5:
+        if g > 15:
             new_l.append(l[index])
     return new_l

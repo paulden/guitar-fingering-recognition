@@ -1,7 +1,7 @@
 from image import Image
 from strings import Strings
 from functions import *
-from statistics import median, StatisticsError
+from statistics import mean
 from random import random
 from rotate_crop import *
 from math import log
@@ -160,7 +160,20 @@ def fret_detection(neck):
             potential_frets.append(x)
 
     potential_frets = list(sorted(potential_frets))
-    potential_frets = purify(potential_frets)
+    potential_frets = remove_duplicates(potential_frets)
+
+    potential_ratio = []
+    for i in range(len(potential_frets) - 1):
+        potential_ratio.append(round(potential_frets[i+1]/potential_frets[i], 3))
+
+    ratio = potential_ratio[-1]
+    last_x = potential_frets[-1]
+    while 1:
+        last_x *= ratio
+        if last_x >= width:
+            break
+        else:
+            potential_frets.append(int(last_x))
 
     for x in potential_frets:
         cv2.line(neck.image, (x, 0), (x, height), (255, 0, 0), 3)
@@ -169,10 +182,10 @@ def fret_detection(neck):
 
 
 if __name__ == "__main__":
-    chord_image = Image(path="./pictures/chordBm.jpg")
+    chord_image = Image(path="./pictures/chordAm.png")
     rotated_image = rotate_neck_picture(chord_image)
     cropped_image = crop_neck_picture(rotated_image)
-    # neck_string = string_detection(cropped_image)
+    neck_string = string_detection(cropped_image)
     # neck_string.print_plt(is_gray=False)
-    neck_fret = fret_detection(cropped_image)
+    neck_fret = fret_detection(neck_string)
     neck_fret.print_plt(is_gray=False)
