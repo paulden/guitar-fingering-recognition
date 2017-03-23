@@ -15,6 +15,7 @@ def string_detection_tests():
         try:
             neck_string = string_detection(cropped_image)
         except IndexError:
+            print(filename + " : impossible de déterminer l'emplacement des cordes")
             pass
         plt.subplot(int("42" + str(i)))
         i += 1

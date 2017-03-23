@@ -19,10 +19,11 @@ def string_detection(neck):
     width = len(neck.image[0])
     neck_with_strings = np.zeros((height, width, 3), np.uint8)
 
+    # 1. Detect strings with Hough transform and form an Image based on these
     edges = neck.edges_sobely()
     edges = threshold(edges, 127)
 
-    lines = neck.lines_hough_transform(edges, 50, 50)  # TODO: Calibrate params automatically
+    lines = neck.lines_hough_transform(edges, 50, 20)  # TODO: Calibrate params automatically
     size = len(lines)
 
     for x in range(size):
@@ -32,17 +33,18 @@ def string_detection(neck):
     neck_str = Image(img=neck_with_strings)
     neck_str_gray = neck_str.gray
 
+    # 2. Slice image vertically at different points and calculate gaps between strings at these slices
     slices = {}
     nb_slices = int(width / 50)
     for i in range(nb_slices):
-        slices[(i+1)*nb_slices] = []
+        slices[(i+1)*nb_slices] = []  # slices dict is {x_pixel_of_slice : [y_pixels_where_line_detected]}
 
     for index_line, line in enumerate(neck_str_gray):
         for index_pixel, pixel in enumerate(line):
             if pixel == 255 and index_pixel in slices:
                 slices[index_pixel].append(index_line)
 
-    slices_differences = {}
+    slices_differences = {}  # slices_differences dict is {x_pixel_of_slice : [gaps_between_detected_lines]}
     for k in slices.keys():
         temp = []
         n = 0
@@ -54,40 +56,47 @@ def string_detection(neck):
         slices_differences[k] = temp
 
     points = []
+    points_dict = {}
     for j in slices_differences.keys():
-        gaps = []
-        for l in range(len(slices_differences[j])):
-            if slices_differences[j][l] > 1:
-                gaps.append(slices_differences[j][l])
-        try:
+        gaps = [g for g in slices_differences[j] if g > 1]
+        points_dict[j] = []
+
+        if len(gaps) > 3:
             median_gap = median(gaps)
-            for gap in gaps:
-                if abs(gap-median_gap) > 3:  # TODO: Relax condition on difference if no convenient gaps are found
-                    gaps.remove(gap)
-            if len(gaps) == 5:
-                    for p in range(len(slices[j])-1):
-                        current_gap = slices[j][p+1]-slices[j][p]
-                        if abs(current_gap - median_gap) <= 3:
-                            points.append((j, int(slices[j][p] + current_gap/2)))
-        except StatisticsError:
-            pass
+            for index, diff in enumerate(slices_differences[j]):
+                if abs(diff - median_gap) < 4:
+                    points_dict[j].append((j, slices[j][index] + int(median_gap/2)))
+                elif abs(diff/2 - median_gap) < 4:
+                    points_dict[j].append((j, slices[j][index] + int(median_gap/2)))
+                    points_dict[j].append((j, slices[j][index] + int(3*median_gap/2)))
 
-    strings = Strings(['E', 'a', 'd', 'g', 'b', 'e'])
+        points.extend(points_dict[j])
 
-    for i in range(5):  # TODO: Manage errors if we don't have 5 gaps
-        a = (points[i+5][1]-points[i][1])/(points[i+5][0]-points[i][0])
-        b = points[i][1] - a*points[i][0]
-        current_block = strings.tuning[i]
-        strings.blocks[current_block] = [(0, int(b)), (width-1, int(a*(width-1)+b))]
-        red = random()*255
-        blue = random() * 255
-        green = random() * 255
-        cv2.line(neck.image, (0, int(b)), (width-1, int(a*(width-1)+b)), (red, green, blue), 2)
+    # for p in points:
+    #     print(p)
+    #     cv2.circle(neck.image, p, 3, (255, 0, 0), -1)
 
-    strings.blocks[strings.tuning[5]] = [(0, height), (width, height)]
+    points_divided = [[] for i in range(5)]
+    for s in points_dict.keys():
+        for i in range(5):
+            try:
+                # cv2.circle(neck.image, points_dict[s][i], 3, (255, 0, 0), -1)
+                points_divided[i].append(points_dict[s][i])
+            except IndexError:
+                pass
 
-    # return Image(img=neck.image)
-    return strings
+    # 3. Use fitLine function to form lines separating each string
+    for i in range(5):
+        cnt = np.array(points_divided[i])
+        [vx, vy, x, y] = cv2.fitLine(cnt, cv2.DIST_L12, 0, 0.01, 0.01)  # best distType found was DIST_L12
+
+        left_extreme = int((-x * vy / vx) + y)
+        right_extreme = int(((width - x) * vy / vx) + y)
+
+        cv2.line(neck.image, (width - 1, right_extreme), (0, left_extreme), 255, 2)
+
+    return Image(img=neck.image)
+    # return strings
 
 
 def fret_detection(neck):
@@ -116,11 +125,10 @@ def fret_detection(neck):
 if __name__ == "__main__":
     chord_image = Image(path="./pictures/chordBm.jpg")
     rotated_image = rotate_neck_picture(chord_image)
-    for i in range(10):
-        rotated_image = rotate_neck_picture(rotated_image)
     cropped_image = crop_neck_picture(rotated_image)
     neck_string = string_detection(cropped_image)
-    print(neck_string)
+    # print(neck_string)
+    neck_string.print_plt(is_gray=False)
     neck_fret = fret_detection(cropped_image)
     # neck_grid = Image(img=(neck_string.image + neck_fret.image))
     # neck_grid.print_plt(is_gray=False)
