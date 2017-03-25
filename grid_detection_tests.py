@@ -10,7 +10,7 @@ def string_detection_tests():
     i = 1
     plt.figure(1)
     for filename in os.listdir('./pictures/'):
-        chord_image = Image(path='./pictures/'+filename)
+        chord_image = Image(path='./pictures/' + filename)
         rotated_image = rotate_neck_picture(chord_image)
         cropped_image = crop_neck_picture(rotated_image)
         neck_string = string_detection(cropped_image)[1]
@@ -28,7 +28,7 @@ def fret_detection_tests():
     i = 1
     plt.figure(1)
     for filename in os.listdir('./pictures/'):
-        chord_image = Image(path='./pictures/'+filename)
+        chord_image = Image(path='./pictures/' + filename)
         rotated_image = rotate_neck_picture(chord_image)
         cropped_image = crop_neck_picture(rotated_image)
         neck_fret = fret_detection(cropped_image)
@@ -46,7 +46,7 @@ def grid_detection_tests():
     i = 1
     plt.figure(1)
     for filename in os.listdir('./pictures/'):
-        chord_image = Image(path='./pictures/'+filename)
+        chord_image = Image(path='./pictures/' + filename)
         rotated_image = rotate_neck_picture(chord_image)
         cropped_image = crop_neck_picture(rotated_image)
         neck_strings = string_detection(cropped_image)[0]

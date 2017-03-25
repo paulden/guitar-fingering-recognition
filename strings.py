@@ -1,5 +1,3 @@
-
-
 class Strings:
     def __init__(self, tuning):
         self.tuning = tuning

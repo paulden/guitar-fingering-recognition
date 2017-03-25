@@ -1,11 +1,5 @@
-from image import Image
 from strings import Strings
-from functions import *
-from statistics import mean
-from random import random
 from rotate_crop import *
-from math import log
-from matplotlib import pyplot as plt
 import cv2
 import numpy as np
 from collections import defaultdict
@@ -39,7 +33,7 @@ def string_detection(neck):
     slices = {}
     nb_slices = int(width / 50)
     for i in range(nb_slices):
-        slices[(i+1)*nb_slices] = []  # slices dict is {x_pixel_of_slice : [y_pixels_where_line_detected]}
+        slices[(i + 1) * nb_slices] = []  # slices dict is {x_pixel_of_slice : [y_pixels_where_line_detected]}
 
     for index_line, line in enumerate(neck_str_gray):
         for index_pixel, pixel in enumerate(line):
@@ -51,9 +45,9 @@ def string_detection(neck):
         temp = []
         n = 0
         slices[k] = list(sorted(slices[k]))
-        for p in range(len(slices[k])-1):
-            temp.append(slices[k][p+1]-slices[k][p])
-            if slices[k][p+1]-slices[k][p] > 1:
+        for p in range(len(slices[k]) - 1):
+            temp.append(slices[k][p + 1] - slices[k][p])
+            if slices[k][p + 1] - slices[k][p] > 1:
                 n += 1
         slices_differences[k] = temp
 
@@ -67,10 +61,10 @@ def string_detection(neck):
             median_gap = median(gaps)
             for index, diff in enumerate(slices_differences[j]):
                 if abs(diff - median_gap) < 4:
-                    points_dict[j].append((j, slices[j][index] + int(median_gap/2)))
-                elif abs(diff/2 - median_gap) < 4:
-                    points_dict[j].append((j, slices[j][index] + int(median_gap/2)))
-                    points_dict[j].append((j, slices[j][index] + int(3*median_gap/2)))
+                    points_dict[j].append((j, slices[j][index] + int(median_gap / 2)))
+                elif abs(diff / 2 - median_gap) < 4:
+                    points_dict[j].append((j, slices[j][index] + int(median_gap / 2)))
+                    points_dict[j].append((j, slices[j][index] + int(3 * median_gap / 2)))
 
         points.extend(points_dict[j])
 
@@ -157,7 +151,7 @@ def fret_detection(neck):
     slices = {}
     nb_slices = int(height / 15)
     for i in range(nb_slices):
-        slices[(i+1)*nb_slices] = []  # slices dict is {y_pixel_of_slice : [x_pixels_where_line_detected]}
+        slices[(i + 1) * nb_slices] = []  # slices dict is {y_pixel_of_slice : [x_pixels_where_line_detected]}
 
     for index_line, line in enumerate(neck_fret_gray):
         for index_pixel, pixel in enumerate(line):
@@ -169,9 +163,9 @@ def fret_detection(neck):
         temp = []
         n = 0
         slices[k] = list(sorted(slices[k]))
-        for p in range(len(slices[k])-1):
-            temp.append(slices[k][p+1]-slices[k][p])
-            if slices[k][p+1]-slices[k][p] > 1:
+        for p in range(len(slices[k]) - 1):
+            temp.append(slices[k][p + 1] - slices[k][p])
+            if slices[k][p + 1] - slices[k][p] > 1:
                 n += 1
         slices_differences[k] = temp
 
@@ -192,7 +186,7 @@ def fret_detection(neck):
 
     potential_ratio = []
     for i in range(len(potential_frets) - 1):
-        potential_ratio.append(round(potential_frets[i+1]/potential_frets[i], 3))
+        potential_ratio.append(round(potential_frets[i + 1] / potential_frets[i], 3))
 
     ratio = potential_ratio[-1]
     last_x = potential_frets[-1]

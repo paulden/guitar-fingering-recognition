@@ -9,7 +9,7 @@ def threshold(img, s):
     return I
 
 
-def rotate(image, angle, center = None, scale = 1.0):
+def rotate(image, angle, center=None, scale=1.0):
     (h, w) = image.shape[:2]
 
     if center is None:
@@ -25,8 +25,8 @@ def rotate(image, angle, center = None, scale = 1.0):
 def remove_duplicates(l):
     gaps = []
     new_l = []
-    for i in range(len(l)-1):
-        gaps.append(l[i+1]-l[i])
+    for i in range(len(l) - 1):
+        gaps.append(l[i + 1] - l[i])
     for index, g in enumerate(gaps):
         if g > 15:
             new_l.append(l[index])
