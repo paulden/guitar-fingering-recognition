@@ -39,7 +39,6 @@ def fret_detection_tests():
         i += 1
         plt.imshow(neck_fret.image)
 
-
     plt.show()
 
 

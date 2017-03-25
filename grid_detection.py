@@ -130,6 +130,28 @@ def fret_detection(neck):
     neck_fr = Image(img=neck_with_frets)
     neck_fret_gray = neck_fr.gray
 
+    '''x_dict = defaultdict(int)
+    for index_line, line in enumerate(neck_fret_gray):
+        for index_pixel, pixel in enumerate(line):
+            if pixel == 255:
+                x_dict[index_pixel] += 1
+
+    min_value = median(list(sorted(x_dict.values())))
+    print(min_value)
+
+    frets = []
+    for x, nb in x_dict.items():
+        if nb > min_value:
+            frets.append(x)
+
+    frets = remove_duplicates(frets)
+    print(frets)
+
+    for x in frets:
+        cv2.line(neck.image, (x, 0), (x, height), (255, 0, 127), 3)
+
+    return Image(img=neck.image)'''
+
     # 2. Slice image horizontally at different points and calculate gaps between frets at these slices
     slices = {}
     nb_slices = int(height / 15)
