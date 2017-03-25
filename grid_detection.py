@@ -119,6 +119,7 @@ def fret_detection(neck):
     # 1. Detect frets with Hough transform and form an Image based on these
     edges = neck.edges_sobelx()
     edges = threshold(edges, 127)
+    # edges = cv2.medianBlur(edges, 3)
 
     lines = neck.lines_hough_transform(edges, 20, 5)  # TODO: Calibrate params automatically
     size = len(lines)
