@@ -198,7 +198,7 @@ def fret_detection(neck):
             potential_frets.append(int(last_x))
 
     for x in potential_frets:
-        cv2.line(neck.image, (x, 0), (x, height), (255, 0, 127), 3)
+        cv2.line(neck.image, (x, 0), (x, height), (127, 0, 255), 3)
 
     return Image(img=neck.image)
 

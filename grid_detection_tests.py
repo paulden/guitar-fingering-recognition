@@ -16,10 +16,10 @@ def string_detection_tests():
         neck_string = string_detection(cropped_image)[1]
         plt.subplot(int("42" + str(i)))
         i += 1
-        plt.imshow(chord_image.image)
+        plt.imshow(cv2.cvtColor(chord_image.image, cv2.COLOR_BGR2RGB))
         plt.subplot(int("42" + str(i)))
         i += 1
-        plt.imshow(neck_string.image)
+        plt.imshow(cv2.cvtColor(neck_string.image, cv2.COLOR_BGR2RGB))
 
     plt.show()
 
@@ -34,10 +34,10 @@ def fret_detection_tests():
         neck_fret = fret_detection(cropped_image)
         plt.subplot(int("42" + str(i)))
         i += 1
-        plt.imshow(chord_image.image)
+        plt.imshow(cv2.cvtColor(chord_image.image, cv2.COLOR_BGR2RGB))
         plt.subplot(int("42" + str(i)))
         i += 1
-        plt.imshow(neck_fret.image)
+        plt.imshow(cv2.cvtColor(neck_fret.image, cv2.COLOR_BGR2RGB))
 
     plt.show()
 
@@ -52,13 +52,13 @@ def grid_detection_tests():
         neck_strings = string_detection(cropped_image)[0]
         neck_fret = fret_detection(cropped_image)
         for string, pts in neck_strings.separating_lines.items():
-            cv2.line(neck_fret.image, pts[0], pts[1], (255, 0, 127), 2)
+            cv2.line(neck_fret.image, pts[0], pts[1], (127, 0, 255), 2)
         plt.subplot(int("42" + str(i)))
         i += 1
-        plt.imshow(chord_image.image)
+        plt.imshow(cv2.cvtColor(chord_image.image, cv2.COLOR_BGR2RGB))
         plt.subplot(int("42" + str(i)))
         i += 1
-        plt.imshow(neck_fret.image)
+        plt.imshow(cv2.cvtColor(neck_fret.image, cv2.COLOR_BGR2RGB))
 
     plt.show()
 

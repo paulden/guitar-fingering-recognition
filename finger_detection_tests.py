@@ -1,5 +1,6 @@
 import os
 from matplotlib import pyplot as plt
+from matplotlib import image as mpimg
 from image import Image
 from rotate_crop import rotate_neck_picture, crop_neck_picture
 from finger_detection import hand_detection
@@ -18,10 +19,10 @@ def hand_detection_tests():
 
         plt.subplot(int("42" + str(i)))
         i += 1
-        plt.imshow(chord_image.image)
+        plt.imshow(cv2.cvtColor(chord_image.image, cv2.COLOR_BGR2RGB))
         plt.subplot(int("42" + str(i)))
         i += 1
-        plt.imshow(hand)
+        plt.imshow(cv2.cvtColor(hand, cv2.COLOR_BGR2RGB))
 
     plt.show()
 
