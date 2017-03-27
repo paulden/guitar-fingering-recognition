@@ -80,8 +80,10 @@ def locate_hand_region(img):
 
     return hand_region
 
-def hand_detection(neck):
-    neck.set_image(skin_detection(neck.image))
+
+def hand_detection(skin):
+    neck = Image(img=skin)
+    neck.set_image(locate_hand_region(skin_detection(neck.image)))
     neck.set_image(cv2.medianBlur(neck.image, 5))
     neck.set_gray(cv2.cvtColor(neck.image, cv2.COLOR_BGR2GRAY))
     canny_edges = neck.edges_canny(min_val=70, max_val=100, aperture=3)
