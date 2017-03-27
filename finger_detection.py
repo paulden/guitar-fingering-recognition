@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 from rotate_crop import *
+from watershed_segmentation import watershed_segmentation
 
 
 def skin_detection(img):
@@ -16,6 +17,25 @@ def skin_detection(img):
                 img[index_line][index_pixel] = (0, 0, 0)
     return img
 
+
+def skin_detection_bis(img):
+    lower = np.array([0, 48, 80], dtype="uint8")
+    upper = np.array([20, 255, 255], dtype="uint8")
+    converted = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    skinMask = cv2.inRange(converted, lower, upper)
+
+    # apply a series of erosions and dilations to the mask
+    # using an elliptical kernel
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (11, 11))
+    skinMask = cv2.erode(skinMask, kernel, iterations=2)
+    skinMask = cv2.dilate(skinMask, kernel, iterations=2)
+
+    # blur the mask to help remove noise, then apply the
+    # mask to the frame
+    skinMask = cv2.GaussianBlur(skinMask, (3, 3), 0)
+    skin = cv2.bitwise_and(img, img, mask=skinMask)
+
+    return skin
 
 def refine_hand_region(neck, skin):
 
@@ -36,6 +56,13 @@ def refine_hand_region(neck, skin):
 
     neck_str = Image(img=neck_with_strings)
     neck_str_gray = neck_str.gray
+
+    for index_line, line in enumerate(skin):
+        for index_pixel, pixel in enumerate(line):
+            if neck_str_gray[index_line][index_pixel] > 0:
+                skin[index_line][index_pixel] = (0, 255, 0)
+    return skin
+
 
     # 2. We divide neck image in square of 50*50px. If we detect string line going through, we rule it out
     square_size = 40
@@ -94,14 +121,18 @@ def hand_detection(neck):
         # draw the center of the circle
         cv2.circle(neck.image, (i[0], i[1]), 2, (0, 0, 255), 3)'''
 
-    # return cv2.cvtColor(contour_image, cv2.COLOR_GRAY2BGR)
-    return neck.image
+    return cv2.cvtColor(contour_image, cv2.COLOR_GRAY2BGR)
+    # return neck.image
 
 
 if __name__ == "__main__":
-    chord_image = Image(path="./pictures/chordAm.png")
+    chord_image = Image(path="./pictures/chordC.png")
     rc_image = crop_neck_picture(rotate_neck_picture(chord_image))
-    new = refine_hand_region(rc_image, skin_detection(rc_image.image))
+    # new = refine_hand_region(rc_image, skin_detection(rc_image.image))
     # hand = hand_detection(rc_image)
-    plt.imshow(new)
-    plt.show()
+    # plt.imshow(new)
+    # plt.show()
+    skin = skin_detection_bis(rc_image.image)
+    watershed = watershed_segmentation(rc_image.image)
+    # plt.imshow(watershed)
+    # plt.show()
