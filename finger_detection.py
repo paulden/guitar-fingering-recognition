@@ -1,4 +1,5 @@
 import cv2
+import time
 from collections import defaultdict
 import numpy as np
 from matplotlib import pyplot as plt
@@ -164,10 +165,12 @@ def refine_hand_region(neck, skin):
 
 
 if __name__ == "__main__":
-    chord_image = Image(path="./pictures/chordE.jpg")
+    chord_image = Image(path="./pictures/chordC.png")
+    start_time = time.time()
     rc_image = crop_neck_picture(rotate_neck_picture(chord_image))
     skin = skin_detection(rc_image.image)
     refined_hand = locate_hand_region(skin)
-    # hand = hand_detection(rc_image)
-    plt.imshow(refined_hand)
+    hand = hand_detection(refined_hand)
+    print("Time elapsed: %s seconds" % round(time.time() - start_time, 2))
+    plt.imshow(hand)
     plt.show()
