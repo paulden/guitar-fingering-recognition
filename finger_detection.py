@@ -1,4 +1,5 @@
 import cv2
+from collections import defaultdict
 import numpy as np
 from matplotlib import pyplot as plt
 from rotate_crop import *
@@ -15,6 +16,103 @@ def skin_detection(img):
             else:
                 img[index_line][index_pixel] = (0, 0, 0)
     return img
+
+
+def locate_hand_region(img):
+    height = len(img)
+    width = len(img[0])
+    hand_region = np.zeros((height, width, 3), np.uint8)
+
+    x_dict = defaultdict(int)
+    # x_values = []
+    for line in img:
+        for j, pixel in enumerate(line):
+            if pixel.all() > 0:
+                # x_values.append(j)
+                x_dict[j] += 1
+
+    # plt.hist(x_values, bins=200)
+    # plt.show()
+
+    max_density = max(x_dict.values())
+    max_x_density = 0
+    for x, density in x_dict.items():
+        if density == max_density:
+            max_x_density = x
+            break
+    min_x = min(x_dict.keys())
+    max_x = max(x_dict.keys())
+
+    m = 0
+    last_density = x_dict[max_density]
+    while 1:
+        if max_x_density - m == min_x:
+            break
+        m += 1
+        current_density = x_dict[max_x_density - m]
+        if current_density < 0.1 * max_density:
+            break
+        elif current_density < 0.5 * last_density:
+            break
+        last_density = current_density
+
+    n = 0
+    last_density = x_dict[max_density]
+    while 1:
+        if max_x_density + n == max_x:
+            break
+        n += 1
+        current_density = x_dict[max_x_density + n]
+        if current_density < 0.1 * max_density:
+            break
+        elif current_density < 0.5 * last_density:
+            break
+        last_density = current_density
+
+    tolerance = 20
+    min_limit = max_x_density - m - tolerance
+    max_limit = max_x_density + n + tolerance
+
+    for i, line in enumerate(img):
+        for j, pixel in enumerate(line):
+            if min_limit < j < max_limit:
+                hand_region[i][j] = img[i][j]
+
+    return hand_region
+
+def hand_detection(neck):
+    neck.set_image(skin_detection(neck.image))
+    neck.set_image(cv2.medianBlur(neck.image, 5))
+    neck.set_gray(cv2.cvtColor(neck.image, cv2.COLOR_BGR2GRAY))
+    canny_edges = neck.edges_canny(min_val=70, max_val=100, aperture=3)
+
+    height = len(neck.image)
+    width = len(neck.image[0])
+    contour_image = np.zeros((height, width, 3), np.uint8)
+    contour_image = cv2.cvtColor(contour_image, cv2.COLOR_BGR2GRAY)
+
+    ret, thresh = cv2.threshold(neck.gray, 127, 255, 0)
+    im2, contours, hierarchy = cv2.findContours(canny_edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+
+    '''for cnt in contours:
+        area = cv2.contourArea(cnt)
+        perimeter = cv2.arcLength(cnt, False)
+        if perimeter > 100:
+            cv2.drawContours(contour_image, cnt, -1, (255, 255, 255), 3)'''
+
+    cv2.drawContours(contour_image, contours, -1, (255, 255, 255), 3)
+
+    '''circles = cv2.HoughCircles(contour_image, cv2.HOUGH_GRADIENT, 1, 5,
+                               param1=100, param2=20, minRadius=20, maxRadius=90)
+    circles = np.uint16(np.around(circles))
+    for i in circles[0, :]:
+        # draw the outer circle
+        cv2.circle(neck.image, (i[0], i[1]), i[2], (0, 255, 0), 2)
+        # draw the center of the circle
+        cv2.circle(neck.image, (i[0], i[1]), 2, (0, 0, 255), 3)'''
+
+    return cv2.cvtColor(contour_image, cv2.COLOR_GRAY2BGR)
+    # return neck.image
 
 
 def refine_hand_region(neck, skin):
@@ -63,45 +161,11 @@ def refine_hand_region(neck, skin):
     return skin
 
 
-def hand_detection(neck):
-    neck.set_image(skin_detection(neck.image))
-    neck.set_image(cv2.medianBlur(neck.image, 5))
-    neck.set_gray(cv2.cvtColor(neck.image, cv2.COLOR_BGR2GRAY))
-    canny_edges = neck.edges_canny(min_val=70, max_val=100, aperture=3)
-
-    height = len(neck.image)
-    width = len(neck.image[0])
-    contour_image = np.zeros((height, width, 3), np.uint8)
-    contour_image = cv2.cvtColor(contour_image, cv2.COLOR_BGR2GRAY)
-
-    ret, thresh = cv2.threshold(neck.gray, 127, 255, 0)
-    im2, contours, hierarchy = cv2.findContours(canny_edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-
-    '''for cnt in contours:
-        area = cv2.contourArea(cnt)
-        perimeter = cv2.arcLength(cnt, False)
-        if perimeter > 100:
-            cv2.drawContours(contour_image, cnt, -1, (255, 255, 255), 3)'''
-
-    cv2.drawContours(contour_image, contours, -1, (255, 255, 255), 3)
-
-    '''circles = cv2.HoughCircles(contour_image, cv2.HOUGH_GRADIENT, 1, 5,
-                               param1=100, param2=20, minRadius=20, maxRadius=90)
-    circles = np.uint16(np.around(circles))
-    for i in circles[0, :]:
-        # draw the outer circle
-        cv2.circle(neck.image, (i[0], i[1]), i[2], (0, 255, 0), 2)
-        # draw the center of the circle
-        cv2.circle(neck.image, (i[0], i[1]), 2, (0, 0, 255), 3)'''
-
-    # return cv2.cvtColor(contour_image, cv2.COLOR_GRAY2BGR)
-    return neck.image
-
-
 if __name__ == "__main__":
-    chord_image = Image(path="./pictures/chordAm.png")
+    chord_image = Image(path="./pictures/chordE.jpg")
     rc_image = crop_neck_picture(rotate_neck_picture(chord_image))
-    new = refine_hand_region(rc_image, skin_detection(rc_image.image))
+    skin = skin_detection(rc_image.image)
+    refined_hand = locate_hand_region(skin)
     # hand = hand_detection(rc_image)
-    plt.imshow(new)
+    plt.imshow(refined_hand)
     plt.show()
