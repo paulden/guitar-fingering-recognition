@@ -2,6 +2,7 @@ from image import Image
 from functions import *
 from statistics import median
 from math import inf
+from matplotlib import pyplot as plt
 
 
 def rotate_neck_picture(image):
@@ -63,14 +64,20 @@ def crop_neck_picture(image):
     for i in range(len(y_differences)-1):
         if y_differences[i] == 0:
             last_y = y_sort[i]
-            if i != 0 and first_y == 0:
+            if i > 3 and first_y == 0:
                 first_y = y_sort[i]
 
     return Image(img=image_to_crop[first_y-10:last_y+10])
 
 
+def resize_image(img):
+    height = len(img)
+    width = len(img[0])
+    if height >= 1080 or width >= 1920:
+        resized_image = cv2.resize(img, (int(width*0.8), int(height*0.8)))
+        return resize_image(resized_image)
+    else:
+        return img
+
 if __name__ == "__main__":
-    chord_image = Image(path="./pictures/chordC.png")
-    rotated_image = rotate_neck_picture(chord_image)
-    cropped_image = crop_neck_picture(rotated_image)
-    cropped_image.print_plt()
+    pass
