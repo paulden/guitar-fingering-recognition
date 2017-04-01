@@ -4,6 +4,10 @@ import cv2
 
 
 class Image:
+    """
+    This Image object was made at the beginning to simplify the code by packaging every common
+    image processing treatment in a single object
+    """
     def __init__(self, path=None, img=None):
         if img is None:
             self.image = cv2.imread(path)
