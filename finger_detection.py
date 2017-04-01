@@ -7,6 +7,11 @@ from rotate_crop import *
 
 
 def skin_detection(img):
+    """
+    Naively detecting skin in image. Non-skin will be black (0, 0, 0)
+    :param img: an image as defined in OpenCV
+    :return: an image as defined in OpenCV
+    """
     for index_line, line in enumerate(img):
         for index_pixel, pixel in enumerate(line):
             if pixel[2] > 95 and pixel[1] > 40 and pixel[0] > 20 and max(pixel) - min(pixel) > 15 \
@@ -20,6 +25,12 @@ def skin_detection(img):
 
 
 def locate_hand_region(img):
+    """
+    Refining hand region after skin detection by returning the region with the highest density
+    of non-black pixel when looking at regions split vertically
+    :param img: an image as defined in OpenCV, after skin detection
+    :return: an image as defined in OpenCV
+    """
     height = len(img)
     width = len(img[0])
     hand_region = np.zeros((height, width, 3), np.uint8)
@@ -83,43 +94,56 @@ def locate_hand_region(img):
 
 
 def hand_detection(skin):
+    """
+    Detecting contours in hand using Canny detection
+    Also trying to find fingertips (currently not working...)
+    :param img: an image as defined in OpenCV, after skin detection and refining
+    :return: an image as defined in OpenCV, you may choose whether you want the contours or the results
+    of the circular Hough transform (which is not working as of 02/04/2017...)
+    """
     neck = Image(img=skin)
     neck.set_image(locate_hand_region(skin_detection(neck.image)))
     neck.set_image(cv2.medianBlur(neck.image, 5))
     neck.set_gray(cv2.cvtColor(neck.image, cv2.COLOR_BGR2GRAY))
     canny_edges = neck.edges_canny(min_val=70, max_val=100, aperture=3)
 
-    height = len(neck.image)
-    width = len(neck.image[0])
-    contour_image = np.zeros((height, width, 3), np.uint8)
-    contour_image = cv2.cvtColor(contour_image, cv2.COLOR_BGR2GRAY)
+    # height = len(neck.image)
+    # width = len(neck.image[0])
+    # contour_image = np.zeros((height, width, 3), np.uint8)
+    # contour_image = cv2.cvtColor(contour_image, cv2.COLOR_BGR2GRAY)
+    #
+    # ret, thresh = cv2.threshold(neck.gray, 127, 255, 0)
+    # im2, contours, hierarchy = cv2.findContours(canny_edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+    #
+    # for cnt in contours:
+    #     area = cv2.contourArea(cnt)
+    #     perimeter = cv2.arcLength(cnt, False)
+    #     if perimeter > 100:
+    #         cv2.drawContours(contour_image, cnt, -1, (255, 255, 255), 3)
+    #
+    # cv2.drawContours(contour_image, contours, -1, (255, 255, 255), 3)
 
-    ret, thresh = cv2.threshold(neck.gray, 127, 255, 0)
-    im2, contours, hierarchy = cv2.findContours(canny_edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-
-    '''for cnt in contours:
-        area = cv2.contourArea(cnt)
-        perimeter = cv2.arcLength(cnt, False)
-        if perimeter > 100:
-            cv2.drawContours(contour_image, cnt, -1, (255, 255, 255), 3)'''
-
-    cv2.drawContours(contour_image, contours, -1, (255, 255, 255), 3)
-
-    '''circles = cv2.HoughCircles(contour_image, cv2.HOUGH_GRADIENT, 1, 5,
+    circles = cv2.HoughCircles(canny_edges, cv2.HOUGH_GRADIENT, 1, 5,
                                param1=100, param2=20, minRadius=20, maxRadius=90)
     circles = np.uint16(np.around(circles))
     for i in circles[0, :]:
-        # draw the outer circle
+        # Draw the outer circle
         cv2.circle(neck.image, (i[0], i[1]), i[2], (0, 255, 0), 2)
-        # draw the center of the circle
-        cv2.circle(neck.image, (i[0], i[1]), 2, (0, 0, 255), 3)'''
+        # Draw the center of the circle
+        cv2.circle(neck.image, (i[0], i[1]), 2, (0, 0, 255), 3)
 
-    return cv2.cvtColor(contour_image, cv2.COLOR_GRAY2BGR)
+    return cv2.cvtColor(canny_edges, cv2.COLOR_GRAY2BGR)
     # return neck.image
 
 
 def refine_hand_region(neck, skin):
-
+    """
+    Deprecated - Useless
+    Refining hand region by dividing image into squares and keeping squares where no string is detected
+    :param neck: An Image object of the picture cropped around the horizontal neck
+    :param skin: an image as defined in OpenCV, after skin detection
+    :return: an image as defined in OpenCV refining around the hand
+    """
     # 1. We want to check where string lines are detected. If none are found, it may mean the hand hides them
     height = len(neck.image)
     width = len(neck.image[0])
@@ -138,7 +162,7 @@ def refine_hand_region(neck, skin):
     neck_str = Image(img=neck_with_strings)
     neck_str_gray = neck_str.gray
 
-    # 2. We divide neck image in square of 50*50px. If we detect string line going through, we rule it out
+    # 2. We divide neck image in square of 40*40px. If we detect string line going through, we rule it out
     square_size = 40
     x_nb = width // square_size
     y_nb = height // square_size
