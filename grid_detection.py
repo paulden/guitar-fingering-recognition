@@ -7,9 +7,13 @@ from collections import defaultdict
 
 def string_detection(neck):
     """
-    TODO : Choose an appropriate format to return
+    Detecting and separating strings into separate blocks by choosing numerous vertical slices in image
+    We then look for a periodical pattern on each slice (ie strings detected), store points in between strings
+    and connect them using a regression fitting function to separe each string
     :param neck: An Image object of the picture cropped around the horizontal neck
-    :return:
+    :return strings, Image_string: either a string object which is a dict associating each string to a line
+    (ie a tuple of points) delimiting the bottom of the string block // or directly an Image object with those
+    lines displayed (illustration purpose)
     """
     height = len(neck.image)
     width = len(neck.image[0])
@@ -19,7 +23,7 @@ def string_detection(neck):
     edges = neck.edges_sobely()
     edges = threshold(edges, 127)
 
-    lines = neck.lines_hough_transform(edges, 50, 20)  # TODO: Calibrate params automatically
+    lines = neck.lines_hough_transform(edges, 50, 20)  # TODO: Calibrate params automatically if possible
     size = len(lines)
 
     for x in range(size):
@@ -68,9 +72,11 @@ def string_detection(neck):
 
         points.extend(points_dict[j])
 
-    # for p in points:
-    #     print(p)
-    #     cv2.circle(neck.image, p, 3, (255, 0, 0), -1)
+    '''for p in points:
+        print(p)
+        cv2.circle(neck.image, p, 3, (0, 255, 0), -1)
+    plt.imshow(cv2.cvtColor(neck.image, cv2.COLOR_BGR2RGB))
+    plt.show()'''
 
     points_divided = [[] for i in range(5)]
     for s in points_dict.keys():
@@ -95,16 +101,17 @@ def string_detection(neck):
 
         strings.separating_lines[tuning[i]] = [(width - 1, right_extreme), (0, left_extreme)]
 
-        cv2.line(neck.image, (width - 1, right_extreme), (0, left_extreme), 255, 2)
+        cv2.line(neck.image, (width - 1, right_extreme), (0, left_extreme), (0, 0, 255), 2)
 
     return strings, Image(img=neck.image)
 
 
 def fret_detection(neck):
     """
-
+    Detecting frets by detecting vertical components that are potential frets (provided they are lines detected
+    by Hough transform and respect a logarithmic ratio)
     :param neck: An Image object of the picture cropped around the horizontal neck
-    :return:
+    :return: an Image object of the picture with the frets detected (illustration purpose at the moment)
     """
     height = len(neck.image)
     width = len(neck.image[0])
@@ -115,7 +122,7 @@ def fret_detection(neck):
     edges = threshold(edges, 127)
     # edges = cv2.medianBlur(edges, 3)
 
-    lines = neck.lines_hough_transform(edges, 20, 5)  # TODO: Calibrate params automatically
+    lines = neck.lines_hough_transform(edges, 20, 5)  # TODO: Calibrate params automatically if possible
     size = len(lines)
 
     for x in range(size):
@@ -124,28 +131,6 @@ def fret_detection(neck):
 
     neck_fr = Image(img=neck_with_frets)
     neck_fret_gray = neck_fr.gray
-
-    '''x_dict = defaultdict(int)
-    for index_line, line in enumerate(neck_fret_gray):
-        for index_pixel, pixel in enumerate(line):
-            if pixel == 255:
-                x_dict[index_pixel] += 1
-
-    min_value = median(list(sorted(x_dict.values())))
-    print(min_value)
-
-    frets = []
-    for x, nb in x_dict.items():
-        if nb > min_value:
-            frets.append(x)
-
-    frets = remove_duplicates(frets)
-    print(frets)
-
-    for x in frets:
-        cv2.line(neck.image, (x, 0), (x, height), (255, 0, 127), 3)
-
-    return Image(img=neck.image)'''
 
     # 2. Slice image horizontally at different points and calculate gaps between frets at these slices
     slices = {}
@@ -184,6 +169,7 @@ def fret_detection(neck):
     potential_frets = list(sorted(potential_frets))
     potential_frets = remove_duplicates(potential_frets)
 
+    # 3. Sort potential frets by looking for a ratio and building missings frets
     potential_ratio = []
     for i in range(len(potential_frets) - 1):
         potential_ratio.append(round(potential_frets[i + 1] / potential_frets[i], 3))
@@ -204,11 +190,4 @@ def fret_detection(neck):
 
 
 if __name__ == "__main__":
-    chord_image = Image(path="./pictures/chordBm.jpg")
-    rotated_image = rotate_neck_picture(chord_image)
-    cropped_image = crop_neck_picture(rotated_image)
-    neck_string = string_detection(cropped_image)[0]
-    print(neck_string)
-    # neck_string.print_plt(is_gray=False)
-    # neck_fret = fret_detection(neck_string)
-    # neck_fret.print_plt(is_gray=False)
+    print("Run grid_detection_tests.py to have a look at results!")
