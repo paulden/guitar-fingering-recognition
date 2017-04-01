@@ -10,7 +10,7 @@ class Image:
         elif path is None:
             self.image = img
         else:
-            print("Formation d'image incorrecte")
+            print("Incorrect image parameter")
         self.gray = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
 
     def __str__(self):

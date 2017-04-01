@@ -26,7 +26,7 @@ def rotate_neck_picture(image):
             slopes.append(abs((y2 - y1) / (x2 - x1)))
 
     median_slope = median(slopes)
-    angle = median_slope*45
+    angle = median_slope * 45
 
     return Image(img=rotate(image_to_rotate, -angle))
 
@@ -58,15 +58,15 @@ def crop_neck_picture(image):
     first_y = 0
     last_y = inf
 
-    for i in range(len(y_sort)-1):
-        y_differences.append(y_sort[i+1]-y_sort[i])
-    for i in range(len(y_differences)-1):
+    for i in range(len(y_sort) - 1):
+        y_differences.append(y_sort[i + 1] - y_sort[i])
+    for i in range(len(y_differences) - 1):
         if y_differences[i] == 0:
             last_y = y_sort[i]
             if i > 3 and first_y == 0:
                 first_y = y_sort[i]
 
-    return Image(img=image_to_crop[first_y-10:last_y+10])
+    return Image(img=image_to_crop[first_y - 10:last_y + 10])
 
 
 def resize_image(img):
@@ -78,10 +78,11 @@ def resize_image(img):
     height = len(img)
     width = len(img[0])
     if height >= 1080 or width >= 1920:
-        resized_image = cv2.resize(img, (int(width*0.8), int(height*0.8)))
+        resized_image = cv2.resize(img, (int(width * 0.8), int(height * 0.8)))
         return resize_image(resized_image)
     else:
         return img
+
 
 if __name__ == "__main__":
     print("Run rotate_crop_tests.py to have a look at results!")

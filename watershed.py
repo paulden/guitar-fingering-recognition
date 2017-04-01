@@ -10,7 +10,7 @@ def watershed_segmentation(img):
 
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    ret, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+    ret, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
     fg = cv2.erode(thresh, None, iterations=1)
     bgt = cv2.dilate(thresh, None, iterations=1)
@@ -22,9 +22,9 @@ def watershed_segmentation(img):
 
     new, contours, hierarchy = cv2.findContours(canny, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     marker32 = np.int32(marker)
-    cv2.watershed(img,marker32)
+    cv2.watershed(img, marker32)
     m = cv2.convertScaleAbs(marker32)
-    ret, thresh = cv2.threshold(m, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+    ret, thresh = cv2.threshold(m, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     thresh_inv = cv2.bitwise_not(thresh)
     res = cv2.bitwise_and(img, img, mask=thresh)
     res3 = cv2.bitwise_and(img, img, mask=thresh_inv)
@@ -44,6 +44,7 @@ def watershed_segmentation(img):
 
     plt.imshow(final)
     plt.show()
+
 
 if __name__ == "__main__":
     chord_image = Image(path="./pictures/chordAm.png")

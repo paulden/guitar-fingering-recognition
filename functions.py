@@ -1,5 +1,4 @@
 import cv2
-from statistics import median
 
 
 def threshold(img, s):
