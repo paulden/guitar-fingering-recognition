@@ -1,6 +1,6 @@
 # Recognition of guitar fingering using OpenCV
 
-This repository hosts an **ongoing** student project in computer vision that aims at recognizing guitar fingerstyle using OpenCV library.
+This repository hosts an ongoing student project in computer vision that aims at recognizing guitar finger style using OpenCV library.
 
 ## Language and modules
 
@@ -13,6 +13,7 @@ These images come from various sources on the Internet (YouTube videos, tutorial
 
 More recently I shot various photos with a friend. These can be found in `pictures2/` folder.
 These images were not specifically designed to be used in computer vision either but provide a different context.
+As of April, 2nd 2017, bugs appear when using `pictures2/` images, please refer to `pictures/` folder to have a look at results.
 
 You may have a look at results by running tests scripts which are currently the following :
 - `rotate_crop_tests.py`: doing its best to rotate the neck as horizontally as possible and cropping image around the neck
@@ -26,9 +27,9 @@ Should you have a look at how the code is running, open `rotate_crop.py`, `grid_
 ## Credits
 
 Here are the papers I had a look at to help me in this project:
-- Vision-Based Guitarist Fingering Tracking using a Bayesian Classifier and Particle Filters by Kerdvibulvech et al. (2007)
-- Retrieval of Guitarist Fingering Information using Computer Vision by Scarr et al. (2010)
-- Computer Vision Method for Guitarist Fingering Retrieval by Burns et al. (2011)
+- *Vision-Based Guitarist Fingering Tracking using a Bayesian Classifier and Particle Filters* by Kerdvibulvech et al. (2007)
+- *Retrieval of Guitarist Fingering Information using Computer Vision* by Scarr et al. (2010)
+- *Computer Vision Method for Guitarist Fingering Retrieval* by Burns et al. (2011)
 
 ## Contact
 
