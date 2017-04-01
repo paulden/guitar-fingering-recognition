@@ -1,4 +1,3 @@
-import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 from rotate_crop import *
@@ -6,8 +5,12 @@ from image import Image
 
 
 def watershed_segmentation(img):
-    img_float = np.float32(img)
-
+    """
+    Source : https://learndeltax.blogspot.fr/2016/02/segmentation-using-cannywatershed-in.html
+    As of today, watershed segmentation is not used. I was just trying out new ways to detect hand.
+    :param img: an image as defined in OpenCV
+    :return: simply plotting result for illustration purpose
+    """
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     ret, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
@@ -31,16 +34,16 @@ def watershed_segmentation(img):
     res4 = cv2.addWeighted(res, 1, res3, 1, 0)
     final = cv2.drawContours(res4, contours, -1, (0, 255, 0), 1)
 
-    area_array = []
+    perimeter_array = []
     for i, c in enumerate(contours):
         area = cv2.contourArea(c)
         perimeter = cv2.arcLength(c, False)
-        area_array.append(perimeter)
+        perimeter_array.append(perimeter)
 
-    sorteddata = sorted(zip(area_array, contours), key=lambda x: x[0], reverse=True)
+    sorted_data = sorted(zip(perimeter_array, contours), key=lambda x: x[0], reverse=True)
 
-    for j in range(1):
-        final = cv2.drawContours(res4, sorteddata[j][1], -1, (0, 255, 0), 1)
+    for j in range(1):  # change here from 1 to len(sorted_data) in range to get more or less contours detected
+        final = cv2.drawContours(res4, sorted_data[j][1], -1, (0, 255, 0), 3)
 
     plt.imshow(final)
     plt.show()
