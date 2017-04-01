@@ -18,7 +18,7 @@ As of April, 2nd 2017, bugs appear when using `pictures2/` images, please refer 
 You may have a look at results by running tests scripts which are currently the following :
 - `rotate_crop_tests.py`: doing its best to rotate the neck as horizontally as possible and cropping image around the neck
 - `grid_detection_tests.py`: working hard on the construction of the grid of notes (i.e. the separation between strings and between frets)
-- `finger_detection_tests.py`: concentrating its energy on the detection of fingertips on the neck
+- `finger_detection_tests.py`: concentrating its energy on the detection of fingertips on the neck (but currently failing)
 
 Time performance will be displayed as well as original images and result images.
 
