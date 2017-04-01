@@ -1,8 +1,5 @@
-import cv2
-import time
 from collections import defaultdict
 import numpy as np
-from matplotlib import pyplot as plt
 from rotate_crop import *
 
 
@@ -15,8 +12,8 @@ def skin_detection(img):
     for index_line, line in enumerate(img):
         for index_pixel, pixel in enumerate(line):
             if pixel[2] > 95 and pixel[1] > 40 and pixel[0] > 20 and max(pixel) - min(pixel) > 15 \
-                    and abs(pixel[2] - pixel[1]) > 15 and pixel[2] > pixel[0] and pixel[2] > pixel[1]\
-                    and index_pixel > len(line)/2:
+                    and abs(pixel[2] - pixel[1]) > 15 and pixel[2] > pixel[0] and pixel[2] > pixel[1] \
+                    and index_pixel > len(line) / 2:
                 # img[index_line][index_pixel] = (255, 255, 255)
                 pass
             else:
@@ -172,13 +169,13 @@ def refine_hand_region(neck, skin):
             lines_in_square_left = 0
             lines_in_square_right = 0
             skin_in_square_below = 0
-            for k in range(i*square_size, min((i+1)*square_size, height)):
+            for k in range(i * square_size, min((i + 1) * square_size, height)):
                 if neck_str_gray[k][j * square_size] > 0:
                     lines_in_square_left += 1
-                if neck_str_gray[k][min((j + 1) * square_size, width-1)] > 0:
+                if neck_str_gray[k][min((j + 1) * square_size, width - 1)] > 0:
                     lines_in_square_right += 1
-            for l in range(j*square_size, min((j+1)*square_size, width)):
-                if skin[min((i+1)*square_size, height-1)][l].any() > 0:
+            for l in range(j * square_size, min((j + 1) * square_size, width)):
+                if skin[min((i + 1) * square_size, height - 1)][l].any() > 0:
                     skin_in_square_below += 1
             if lines_in_square_left > 1 and lines_in_square_right > 1:
                 for k in range(i * square_size, min((i + 1) * square_size, height)):
@@ -189,12 +186,4 @@ def refine_hand_region(neck, skin):
 
 
 if __name__ == "__main__":
-    chord_image = Image(path="./pictures/chordC.png")
-    start_time = time.time()
-    rc_image = crop_neck_picture(rotate_neck_picture(chord_image))
-    skin = skin_detection(rc_image.image)
-    refined_hand = locate_hand_region(skin)
-    hand = hand_detection(refined_hand)
-    print("Time elapsed: %s seconds" % round(time.time() - start_time, 2))
-    plt.imshow(hand)
-    plt.show()
+    print("Run finger_detection_tests.py to have a look at results!")
