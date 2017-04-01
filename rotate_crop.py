@@ -2,7 +2,6 @@ from image import Image
 from functions import *
 from statistics import median
 from math import inf
-from matplotlib import pyplot as plt
 
 
 def rotate_neck_picture(image):
@@ -71,6 +70,11 @@ def crop_neck_picture(image):
 
 
 def resize_image(img):
+    """
+    Recursive function to resize image if definition is too elevated
+    :param img: an image as defined in OpenCV
+    :return: an image as defined in OpenCV
+    """
     height = len(img)
     width = len(img[0])
     if height >= 1080 or width >= 1920:
@@ -80,4 +84,4 @@ def resize_image(img):
         return img
 
 if __name__ == "__main__":
-    pass
+    print("Run rotate_crop_tests.py to have a look at results!")
