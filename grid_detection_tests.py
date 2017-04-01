@@ -74,6 +74,16 @@ def grid_detection_tests():
 
 
 if __name__ == "__main__":
-    # string_detection_tests()
-    # fret_detection_tests()
-    grid_detection_tests()
+    print("What would you like to detect? \n\t1 - Strings \n\t2 - Frets \n\t3 - Strings and frets")
+    choice = input("[1/2/3] > ")
+    if choice == "1":
+        print("Detecting strings...")
+        string_detection_tests()
+    elif choice == "2":
+        print("Detecting frets...")
+        fret_detection_tests()
+    elif choice == "3":
+        print("Detecting whole grid...")
+        grid_detection_tests()
+    else:
+        print("Command not defined - Aborted.")
