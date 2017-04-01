@@ -129,8 +129,7 @@ def hand_detection(skin):
         # Draw the center of the circle
         cv2.circle(neck.image, (i[0], i[1]), 2, (0, 0, 255), 3)
 
-    return cv2.cvtColor(canny_edges, cv2.COLOR_GRAY2BGR)
-    # return neck.image
+    return cv2.cvtColor(canny_edges, cv2.COLOR_GRAY2BGR), neck.image
 
 
 def refine_hand_region(neck, skin):

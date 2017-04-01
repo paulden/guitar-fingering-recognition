@@ -7,7 +7,7 @@ import cv2
 import time
 
 
-def hand_detection_tests():
+def hand_detection_tests(b):
     i = 1
     plt.figure(1)
     for filename in os.listdir('./pictures/'):
@@ -26,10 +26,19 @@ def hand_detection_tests():
         plt.imshow(cv2.cvtColor(chord_image.image, cv2.COLOR_BGR2RGB))
         plt.subplot(int("42" + str(i)))
         i += 1
-        plt.imshow(cv2.cvtColor(hand, cv2.COLOR_BGR2RGB))
+        plt.imshow(cv2.cvtColor(hand[b], cv2.COLOR_BGR2RGB))
         print("Done - Time elapsed: %s seconds" % round(time.time() - start_time, 2))
 
     plt.show()
 
 if __name__ == "__main__":
-    hand_detection_tests()
+    print("What would you like to get? \n\t1 - Contours \n\t2 - Circular Hough transform")
+    choice = input("[1/2] > ")
+    if choice == "1":
+        print("Detecting contours...")
+        hand_detection_tests(0)
+    elif choice == "2":
+        print("Detecting circular Hough transform results...")
+        hand_detection_tests(1)
+    else:
+        print("Command not defined - Aborted.")
